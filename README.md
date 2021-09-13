@@ -1,22 +1,9 @@
-# willa-demo
+# Stream-Table Join Test
 
-A Clojure library designed to ... well, that part is up to you.
+This is a small application to demonstrate the behaviour of stream-table joins, 
+with respect to the `max.task.idle.ms` config property.
 
-## Usage
+The topology looks like this:
+![Topology](./topology.png)
 
-FIXME
-
-## License
-
-Copyright © 2019 FIXME
-
-This program and the accompanying materials are made available under the
-terms of the Eclipse Public License 2.0 which is available at
-http://www.eclipse.org/legal/epl-2.0.
-
-This Source Code may also be made available under the following Secondary
-Licenses when the conditions for such availability set forth in the Eclipse
-Public License, v. 2.0 are satisfied: GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or (at your
-option) any later version, with the GNU Classpath Exception which is available
-at https://www.gnu.org/software/classpath/license.html.
+Run through the repl code in `core.clj` to try it out.
