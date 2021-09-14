@@ -5,5 +5,7 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [willa "0.2.1"]
-                 [org.clojure/core.async "0.4.500"]]
-  :repl-options {:init-ns stream-table-join.core})
+                 [org.clojure/core.async "0.4.500"]
+                 ;; Added so we get to see the logs from Kafka client
+                 [org.slf4j/slf4j-log4j12 "1.7.32"]]
+  :repl-options {:init-ns stream-table-join-test.core})
