@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+
+  zookeeper:
+    image: zookeeper:3.6
+    ports:
+      - "2181:2181"
+    networks:
+      - kafkanet
+
+  kafka:
+    image: wurstmeister/kafka:2.12-2.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    networks:
+      - kafkanet
+    links:
+      - zookeeper:zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: OUTSIDE://localhost:9092, INSIDE://:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: OUTSIDE:PLAINTEXT,INSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_LISTENERS: INSIDE://:9094,OUTSIDE://:9092
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:6.1.0
+    depends_on:
+      - zookeeper
+      - kafka
+    ports:
+      - "8081:8081"
+    expose:
+      - "8081"
+    networks:
+      - kafkanet
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka:9094"
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+
+networks:
+  kafkanet:
+    name: kafka-network

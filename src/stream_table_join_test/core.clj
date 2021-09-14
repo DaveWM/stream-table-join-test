@@ -9,16 +9,13 @@
             [willa.viz :as wv]
             [willa.experiment :as we]
             [clojure.string :as str]
-            [clojure.spec.alpha :as s])
-  (:import (org.apache.kafka.streams.kstream JoinWindows Suppressed Suppressed$BufferConfig TimeWindows)
-           (java.time Duration)))
+            [clojure.spec.alpha :as s]))
 
 
 (def app-config
   {"application.id"    "table-join-test"
    "bootstrap.servers" "localhost:9092"
-   "max.task.idle.ms"  "60000"
-   })
+   "max.task.idle.ms"  "60000"})
 
 
 (defn ->topic [name]
@@ -89,6 +86,7 @@
            'jackdaw.admin
            '[clojure.core.async :as a])
 
+  ;; Make sure you started the local Kafka Cluster before proceeding with the following REPL commands (see docker-compose.yaml)
   (def admin-client (jackdaw.admin/->AdminClient app-config))
   (jackdaw.admin/create-topics! admin-client topics)
   (jackdaw.admin/list-topics admin-client)
@@ -102,6 +100,7 @@
     (jackdaw.admin/create-topics! admin-client topics)
     (a/<!! (a/timeout 100))
     (alter-var-root #'app (fn [_] (start!))))
+  (reset)
 
 
   (def producer (jackdaw.client/producer app-config
@@ -116,13 +115,10 @@
 
   ;; Test out topology
 
-  (def timestamp 123)
+  (def timestamp 999)
   @(jackdaw.client/send! producer (jackdaw.data/->ProducerRecord input-topic 0 (inc timestamp) "key" :stream))
   ;; wait a few seconds
   @(jackdaw.client/send! producer (jackdaw.data/->ProducerRecord table-topic 0 (dec timestamp) "key" :table))
-
-  @(jackdaw.client/send! producer (jackdaw.data/->ProducerRecord input-topic 1 (inc timestamp) "second-key" :stream))
-  @(jackdaw.client/send! producer (jackdaw.data/->ProducerRecord table-topic 1 (dec timestamp) "second-key" :table))
 
   ;; input
   (do (jackdaw.client/seek-to-beginning-eager input-consumer)
